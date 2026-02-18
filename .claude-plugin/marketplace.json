@@ -15,7 +15,7 @@
     {
       "name": "bh-agile",
       "description": "BrightHills Agile toolkit: feature planning, ticket creation, implementation workflow, story writing, code review, QA testing, security auditing, and project setup.",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "source": "./plugins/bh-agile"
     },
     {
