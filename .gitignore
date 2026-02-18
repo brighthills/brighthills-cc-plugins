@@ -3,5 +3,4 @@ node_modules/
 *.log
 .claude/settings.json
 .claude/settings.local.json
-.claude/hooks/
 .claude/hook_logs/

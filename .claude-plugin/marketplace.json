@@ -1,9 +1,28 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "brighthills-cc-plugins",
+  "name": "brighthills-cc-plugins-public",
   "description": "BrightHills internal Claude Code plugin marketplace",
   "owner": {
     "name": "BrightHills AI CoE"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "bh",
+      "description": "BrightHills general-purpose tools: session summaries, context preservation, and hook event logging.",
+      "version": "1.1.0",
+      "source": "./plugins/bh"
+    },
+    {
+      "name": "bh-agile",
+      "description": "BrightHills Agile toolkit: feature planning, ticket creation, implementation workflow, story writing, code review, QA testing, security auditing, and project setup.",
+      "version": "1.5.0",
+      "source": "./plugins/bh-agile"
+    },
+    {
+      "name": "bh-statusline",
+      "description": "Custom Claude Code status line: model name, git branch, context window progress bar, working directory, and output style.",
+      "version": "0.1.0",
+      "source": "./plugins/bh-statusline"
+    }
+  ]
 }
