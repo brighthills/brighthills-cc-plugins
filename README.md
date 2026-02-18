@@ -6,9 +6,10 @@ Internal Claude Code plugin marketplace for BrightHills.
 
 ### bh — General-purpose tools
 
-| Component | Invocation | Description |
-|-----------|------------|-------------|
-| [session](plugins/bh/commands/session.md) | `/bh:session` | Create session summaries to preserve development context before `/compact`, or organize existing session files into a year/month/day hierarchy with `--organize`. |
+| Component | Type | Invocation | Description |
+|-----------|------|------------|-------------|
+| [session](plugins/bh/commands/session.md) | command | `/bh:session` | Create session summaries to preserve development context before `/compact`, or organize existing session files into a year/month/day hierarchy with `--organize`. |
+| [hook-logger](plugins/bh/hooks/) | hook | _(auto-active)_ | Logs all Claude Code hook events (PreToolUse, PostToolUse, Stop, SessionStart, SessionEnd, etc.) to `.claude/hook_logs/{event}.jsonl` for debugging and analytics. |
 
 ### bh-agile — Agile toolkit
 
