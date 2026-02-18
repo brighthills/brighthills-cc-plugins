@@ -42,23 +42,6 @@ Internal Claude Code plugin marketplace for BrightHills.
 | Agent template | `assets/agents/` | Agent template with placeholder-based assembly |
 | Agent fragments | `assets/agents/fragments/{github,gitlab}/` | Platform-specific command snippets for template assembly |
 
-### bh-a11y — Web Accessibility toolkit
-
-| Component | Type | Invocation | Description |
-|-----------|------|------------|-------------|
-| [a11y-auditor](plugins/bh-a11y/agents/a11y-auditor.md) | agent | _(auto-triggered)_ | WCAG 2.2 accessibility auditor. Analyzes code for A+AA violations by default; use `--level aaa` for full AAA conformance audit. |
-| [a11y-live-auditor](plugins/bh-a11y/agents/a11y-live-auditor.md) | agent | _(auto-triggered)_ | Live website WCAG 2.2 auditor using browser automation. Navigates real pages, inspects rendered DOM, tests keyboard navigation, checks color contrast. Requires `agent-browser` CLI. |
-| [setup](plugins/bh-a11y/commands/setup.md) | command | `/bh-a11y:setup` | Project setup wizard: detects tech stack, selects WCAG conformance level, generates project-specific accessibility rules from skeletons, and optionally installs `agent-browser` for live auditing. |
-
-**Additional resources in plugin:**
-
-| Resource | Path | Purpose |
-|----------|------|---------|
-| WCAG A+AA criteria | `assets/references/wcag-a-aa-criteria.md` | Complete list of 56 Level A+AA success criteria |
-| WCAG AAA criteria | `assets/references/wcag-aaa-criteria.md` | Complete list of 31 Level AAA success criteria |
-| A+AA rule skeleton | `assets/rules/skeletons/wcag-a-aa.md` | Instructions for generating project-specific A+AA rules |
-| AAA rule skeleton | `assets/rules/skeletons/wcag-aaa.md` | Instructions for generating project-specific AAA rules |
-
 ### bh-statusline — Custom status line
 
 | Component | Type | Invocation | Description |
@@ -76,23 +59,21 @@ Internal Claude Code plugin marketplace for BrightHills.
 All BrightHills skills use the `bh` prefix. Scoped skills use `bh-<scope>`:
 - General: `/bh:skill-name`
 - Agile: `/bh-agile:skill-name`
-- Accessibility: `/bh-a11y:skill-name`
 
 ## Installation
 
 ### 1. Add the marketplace
 
 ```bash
-/plugin marketplace add https://gitlab.app.brighthills.com/ai-coe/brighthills-cc-plugins.git
+/plugin marketplace add https://github.com/brighthills/brighthills-cc-plugins.git
 ```
 
 ### 2. Install plugins
 
 ```bash
-/plugin install bh@brighthills-cc-plugins
-/plugin install bh-agile@brighthills-cc-plugins
-/plugin install bh-a11y@brighthills-cc-plugins
-/plugin install bh-statusline@brighthills-cc-plugins
+/plugin install bh@brighthills-cc-plugins-public
+/plugin install bh-agile@brighthills-cc-plugins-public
+/plugin install bh-statusline@brighthills-cc-plugins-public
 ```
 
 ### 3. Run setup commands
@@ -102,7 +83,6 @@ After installing, run the setup commands in each project where you want to use t
 | Command | What it does |
 |---------|--------------|
 | `/bh-agile:setup` | Explores project structure, generates project-specific clean-code rules, copies static rules (e.g. feature-docs), creates issue tracking labels (GitHub/GitLab), generates a platform-specific ticket manager agent, scaffolds `docs/features/`, and offers recommended external plugin installation (code-simplifier, context7, playwright, agent-browser). |
-| `/bh-a11y:setup` | Detects tech stack, selects WCAG conformance level (A+AA or AAA), and generates project-specific accessibility rules. |
 | `/bh-statusline:setup` | Copies the status line script to `~/.claude/statusline-command.sh` and configures `~/.claude/settings.json`. Asks before overwriting existing configuration. Only needs to run once (not per-project). |
 
 ### 4. Recommended external plugins
