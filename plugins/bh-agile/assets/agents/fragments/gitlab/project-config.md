@@ -1,0 +1,2 @@
+LABEL_SEPARATOR="::"
+PLATFORM="gitlab"

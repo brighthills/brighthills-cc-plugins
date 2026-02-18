@@ -1,0 +1,10 @@
+{
+  "name": "bh-statusline",
+  "description": "Custom Claude Code status line with model name, git branch, context window progress bar, working directory, and output style.",
+  "version": "0.1.0",
+  "author": {
+    "name": "BrightHills AI CoE"
+  },
+  "repository": "https://gitlab.app.brighthills.com/ai-coe/brighthills-cc-plugins",
+  "keywords": ["statusline", "status-bar", "context-window", "git-branch"]
+}

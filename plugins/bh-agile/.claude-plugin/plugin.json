@@ -1,0 +1,10 @@
+{
+  "name": "bh-agile",
+  "description": "BrightHills Agile toolkit: feature planning, ticket creation, implementation workflow, story writing, code review, QA testing, security auditing, and project setup.",
+  "version": "1.5.0",
+  "author": {
+    "name": "BrightHills AI CoE"
+  },
+  "repository": "https://gitlab.app.brighthills.com/ai-coe/brighthills-cc-plugins",
+  "keywords": ["agile", "implement", "plan-feature", "create-tickets", "story-writer", "code-review", "qa-tester", "security-auditor", "ticket-manager", "setup"]
+}
