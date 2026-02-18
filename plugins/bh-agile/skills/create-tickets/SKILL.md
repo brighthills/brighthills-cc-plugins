@@ -131,18 +131,27 @@ Task({
 
 ## Phase 3: Draft Tickets
 
-### 3.1 Activate Story Writer
+**CRITICAL**: This phase is where ALL ticket content is written. You (running on opus) write every ticket body here using the story-writer skill's templates and quality standards. The ticket-manager agent in Phase 5 receives finished text — it does NOT write content.
 
-Use the `/bh-agile:story-writer` skill templates and principles for all ticket content.
+### 3.1 Write Content Using Story Writer
+
+Apply `/bh-agile:story-writer` templates, AC format (Given/When/Then), INVEST criteria, and vertical slice principles to write the **complete markdown body** for every ticket.
 
 ### 3.2 Source Documentation References
 
-**CRITICAL**: When working from documentation (`@` path), every ticket MUST include a "Source Documentation" section. Implementation starts from the ticket — all context needed to implement must be reachable from the ticket body.
+When working from documentation (`@` path), the **docs are the source of truth** for requirements, architecture, and design decisions. But **implementation always starts from the ticket** — a developer picks up a ticket and works from there.
+
+This means every ticket must be **self-contained enough to start work**, while pointing back to docs for full details. The ticket body must:
+1. Contain all key information inline (goals, AC, technical notes, relevant data models, API contracts)
+2. Reference the specific doc files and sections for deeper context
+3. **Require the implementer to read the referenced docs** before starting work
 
 Each ticket must contain:
 
 ```markdown
 ## Source Documentation
+
+> **Before starting implementation, read the referenced documents below.** The ticket summarizes key requirements, but the docs contain full architectural decisions, data models, and design rationale that are essential for correct implementation.
 
 > Feature docs: `docs/features/<feature>/`
 
@@ -159,36 +168,56 @@ Each ticket must contain:
 - Each Task references the specific docs relevant to its scope
 - Always use relative paths from the repo root (e.g. `docs/features/auth/README.md`)
 - List which sections within each doc are relevant — do not just link the file
+- **Inline key details** — do not just say "see architecture.md"; summarize the relevant data model, API shape, or design decision in the ticket, then reference the doc for full context
 
-### 3.3 Draft Epic
+### 3.3 Write Epic Body
 
-Write the Epic with:
+Write the **complete markdown body** for the Epic:
 - **Overview** — Problem description
 - **Source Documentation** — Full reference table to all feature docs (see 3.2)
 - **Goals** — Measurable objectives
 - **Out of Scope** — What we won't do
-- **Stories table** — Title, points, dependencies
+- **Stories table** — Title, points, dependencies (placeholder numbers, updated in Phase 5.4)
 - **Implementation Order** — Phased breakdown with dependency graph
 
-### 3.4 Draft Stories
+Store the finished Epic body — it will be passed verbatim to the ticket-manager in Phase 5.
 
-For each vertical slice, write a Story with:
+### 3.4 Write Story Bodies
+
+For each vertical slice, write the **complete markdown body**:
 - **User Story** — As a [role], I want [action], so that [benefit]
 - **Acceptance Criteria** — Given/When/Then format (3-5 per Story)
-- **Source Documentation** — Relevant docs and sections for this slice (see 3.2)
-- **Technical Notes** — Key interfaces, schema changes, integration points
+- **Source Documentation** — Relevant docs and sections for this slice (see 3.2), with "Before starting" instruction
+- **Technical Notes** — Key interfaces, schema changes, integration points. **Inline the relevant details** from the docs: data model fields, API endpoints/contracts, component hierarchy. The developer should understand *what* to build from the ticket alone — the docs provide the *why* and full context.
 - **Files to Create/Modify** — Affected files list
 - **Estimate** — Story points
 
-### 3.5 Draft Tasks (Optional)
+Store each finished Story body — they will be passed verbatim to the ticket-manager in Phase 5.
 
-For each Story, optionally break into Tasks:
+### 3.5 Write Task Bodies (Optional)
+
+For each Story, optionally write **complete markdown bodies** for Tasks:
 - Completable in 1-4 hours
 - Independently testable
 - Clearly scoped
-- **Source Documentation** — Relevant docs and sections for this task (see 3.2)
+- **Source Documentation** — Relevant docs and sections for this task (see 3.2), with "Before starting" instruction
+- **Implementation Details** — Inline the specific technical details from docs that this task needs (e.g. exact schema fields, API request/response shape, component props)
 
 Typical Task types: schema/data, backend logic, UI components, tests, integration.
+
+### 3.6 Self-Check Before Proceeding
+
+Before moving to Phase 4, verify every drafted body against the story-writer quality bar:
+
+| Check | Requirement |
+|-------|-------------|
+| User Story format | "As a [role], I want..., so that..." present on every Story |
+| Acceptance Criteria | 3-5 Given/When/Then ACs per Story |
+| Source Documentation | Every ticket references relevant docs with specific sections |
+| "Before starting" instruction | Every ticket with doc refs includes the read-docs-first instruction |
+| Key details inlined | Technical notes contain actual data models, API shapes, not just "see docs" |
+| Vertical slice | Each Story delivers user-facing value end-to-end |
+| Task granularity | Each Task completable in 1-4 hours |
 
 ---
 
@@ -233,70 +262,127 @@ AskUserQuestion({
 
 ## Phase 5: Create Tickets
 
-### 5.1 Create Epic
+**The ticket-manager agent is a CRUD tool.** Pass it finished content — do not ask it to write, rephrase, or generate anything. Every `Body:` below must contain the exact markdown written in Phase 3.
+
+### 5.0 Set Up Task Tracking
+
+Create tasks with dependencies to enforce the correct order:
+
+```
+TaskCreate({ subject: "Create Epic in issue tracker",
+  description: "Create the Epic issue with the body drafted in Phase 3.",
+  activeForm: "Creating Epic issue" })                                    → task A
+
+TaskCreate({ subject: "Create Stories and link to Epic",
+  description: "Create all Story issues, link each as sub-issue to Epic.",
+  activeForm: "Creating Story issues" })                                  → task B
+TaskUpdate({ taskId: B, addBlockedBy: [A] })
+
+TaskCreate({ subject: "Create Tasks and link to Stories",
+  description: "Create all Task issues, link each as sub-issue to its Story.",
+  activeForm: "Creating Task issues" })                                   → task C
+TaskUpdate({ taskId: C, addBlockedBy: [B] })
+
+TaskCreate({ subject: "Update Epic with final issue numbers",
+  description: "Replace placeholder numbers in Epic body with actual issue numbers.",
+  activeForm: "Updating Epic with final numbers" })                       → task D
+TaskUpdate({ taskId: D, addBlockedBy: [C] })
+
+TaskCreate({ subject: "Verify hierarchy and links",
+  description: "Verify all sub-issue links exist and labels are correct.",
+  activeForm: "Verifying ticket hierarchy" })                             → task E
+TaskUpdate({ taskId: E, addBlockedBy: [D] })
+```
+
+### 5.1 Create Epic (task A)
 
 ```
 Task({ subagent_type: "agile-ticket-manager",
-  prompt: "Create Epic issue:
+  prompt: "Create issue with EXACTLY this content. Do not modify the body.
     Title: [Epic Title]
-    Body: [Full Epic content including Source Documentation table]
     Labels: type:epic, status:backlog
-    Return the Epic's issue number." })
+    Body:
+    ---
+    [paste the complete Epic markdown from Phase 3 verbatim]
+    ---
+    Return the issue number." })
 ```
 
-### 5.2 Create Stories
+Save the returned Epic number — needed for Story linking.
 
-For each Story:
+### 5.2 Create Stories (task B)
 
-```
-Task({ subagent_type: "agile-ticket-manager",
-  prompt: "Create Story issue:
-    Title: [Story Title]
-    Body: [Full Story content with AC and Source Documentation section]
-    Labels: type:story, status:backlog, points:X
-    Link as sub-issue to Epic #XX.
-    Return the Story's issue number." })
-```
-
-### 5.3 Create Tasks (if drafted)
-
-For each Task:
+For each Story, create the issue and **immediately link** it to the Epic:
 
 ```
 Task({ subagent_type: "agile-ticket-manager",
-  prompt: "Create Task issue:
-    Title: [Task Title]
-    Body: [Task content with Source Documentation section]
-    Labels: type:task, status:backlog, estimate:X
-    Link as sub-issue to Story #YY.
-    Return the Task's issue number." })
+  prompt: "Do these two steps:
+    1. Create issue with EXACTLY this content. Do not modify the body.
+       Title: [Story Title]
+       Labels: type:story, status:backlog, points:X
+       Body:
+       ---
+       [paste the complete Story markdown from Phase 3 verbatim]
+       ---
+    2. Link the created issue as sub-issue to Epic #XX.
+    Return the issue number." })
 ```
 
-### 5.4 Update Epic with Final Numbers
+### 5.3 Create Tasks (task C)
 
-After all tickets are created, update the Epic with actual issue numbers:
+For each Task, create the issue and **immediately link** it to its Story:
 
 ```
 Task({ subagent_type: "agile-ticket-manager",
-  prompt: "Update Epic #XX body with:
-    - Stories table with actual issue numbers
-    - Implementation Order with correct references
-    - Dependency Graph with actual numbers" })
+  prompt: "Do these two steps:
+    1. Create issue with EXACTLY this content. Do not modify the body.
+       Title: [Task Title]
+       Labels: type:task, status:backlog, estimate:X
+       Body:
+       ---
+       [paste the complete Task markdown from Phase 3 verbatim]
+       ---
+    2. Link the created issue as sub-issue to Story #YY.
+    Return the issue number." })
+```
+
+### 5.4 Update Epic with Final Numbers (task D)
+
+After all tickets are created, update the Epic body with actual issue numbers:
+
+```
+Task({ subagent_type: "agile-ticket-manager",
+  prompt: "Update Epic #XX body:
+    - Replace placeholder Story numbers with actual issue numbers
+    - Update Implementation Order with correct references
+    - Update Dependency Graph with actual numbers" })
 ```
 
 ---
 
-## Phase 6: Verify & Report
+## Phase 6: Verify & Report (task E)
 
 ### 6.1 Verify Hierarchy
 
 ```
 Task({ subagent_type: "agile-ticket-manager",
-  prompt: "Verify hierarchy for Epic #XX:
-    - All Stories linked as sub-issues
-    - All Tasks linked to their Stories
-    - Labels correct on all issues" })
+  prompt: "Verify the ticket hierarchy for Epic #XX. Run these checks:
+
+    1. EPIC SUB-ISSUES: Run gh api repos/OWNER/REPO/issues/XX/sub_issues --jq '.[].number'
+       Expected Story numbers: #AA, #BB, #CC, ...
+       Report: found N of M expected.
+
+    2. STORY SUB-ISSUES: For each Story, run gh api repos/OWNER/REPO/issues/STORY/sub_issues --jq '.[].number'
+       Report found vs expected Task count per Story.
+
+    3. LABELS: For each issue, verify type:* and status:backlog labels exist.
+
+    4. FIX MISSING LINKS: If any sub-issue link is missing, link it now.
+
+    Return a verification report with pass/fail per check." })
 ```
+
+**Do not skip this step.** The ticket-manager must run the actual API calls and report concrete numbers — not just confirm from memory.
 
 ### 6.2 Output Summary
 
